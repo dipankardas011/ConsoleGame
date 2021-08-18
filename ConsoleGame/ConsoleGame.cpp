@@ -98,7 +98,7 @@ private:
 void Game::gameLoop(void) {
     while (1) {
         int flag = 0;
-        
+        createWindow(height, width, matrix);
         switch (_getch())
         {
             case 'Q':flag = 1;
@@ -139,7 +139,7 @@ void Game::gameLoop(void) {
         if (flag)
             break;
         system("cls");
-        createWindow(height, width, matrix);
+        //createWindow(height, width, matrix);
         //sleep(10000);
     }
 }
