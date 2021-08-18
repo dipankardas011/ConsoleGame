@@ -85,6 +85,7 @@ public:
     }
     
     void gameLoop();
+
 private:
     int width, height;
     char** matrix;
