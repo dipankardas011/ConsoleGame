@@ -6,62 +6,83 @@ void sleep(unsigned milliseconds)
 {
     Sleep(milliseconds);
 }
-#else
-#include <unistd.h>
-
-void sleep(unsigned milliseconds)
-{
-    usleep(milliseconds * 1000); // takes microseconds
-}
 #endif
 
 #include <iostream>
 #include <time.h>
 #include <conio.h>
-#include <Windows.h>
-void createWindow(int, int, char**);
+#include <ios>
 
 class Game {
 
 public:
     Game() {
-        width = 80;
-        height = 20;
+        width = 20;
+        height = 7;
         usrRow = 1;
-        usrCol = 3;
+        usrCol = 2;
+        usr = '@';
+        boundary = '#';
+        empty = '.';
+        wonRow = height - 2;
+        wonCol = width - 2;
         matrix = new char* [height];
         for (int i = 0; i < height; i++)
             matrix[i] = new char[width];
-    }
+        
+        for (int i = 0; i < height; i++)
+            for (int j = 0; j < width; j++)
+                matrix[i][j] = empty;
 
-    void construct() {
         for (int i = 0; i < height; i++) {
             for (int j = 0; j < width; j++) {
                 if (j == 0 || j == width - 1) {
-                    matrix[i][j] = '#';
+                    matrix[i][j] = boundary;
                 }
                 else if (i == 0 || i == height - 1) {
-                    matrix[i][j] = '#';
+                    matrix[i][j] = boundary;
                 }
                 else if (i == usrRow && j == usrCol) {
-                    matrix[i][j] = '@';
-                }
-                else {
-                    matrix[i][j] = '-';
+                    matrix[i][j] = usr;
                 }
             }
         }
+        matrix[wonRow][wonCol] = 'X';
+
+        console_color = GetStdHandle(STD_OUTPUT_HANDLE);
+    }
+
+    void construct() {
+        //matrix[height / 2][width / 2] = boundary;
+        for (int row = 1; row < height / 2; row++)
+            matrix[row][3] = boundary;
+           
+        for(int row=0; row<height/2; row++)
+            matrix[height - 2 - row][width - 4] = boundary;
+        matrix[2][7] = boundary;
+
+        matrix[height - 2][3] = boundary;
+        for (int col = 3; col < 6; col++)
+            matrix[height - 3][col] = boundary;
+        
+        for (int row = 1; row <= height / 2; row++)
+            matrix[row][width - 7] = boundary;
+
+        for (int row = height/2; row <height; row++)
+            matrix[row][width - 10] = boundary;
+
     }
 
     void operatorJob()
     {
-        std::cout << "\n\n\n";
-        std::cout << "\t\t\tControls:\n";
-        std::cout << "\t\t\tDown: z key\n";
-        std::cout << "\t\t\tUp: w key\n";
-        std::cout << "\t\t\tRight: s key\n";
-        std::cout << "\t\t\tLeft: a key\n";
-        std::cout << "\t\t\tQuit: Q key\n";
+        SetConsoleTextAttribute(console_color, 3);
+        printf( "\n\n\n");
+        printf( "\t\t\tControls:\n");
+        printf( "\t\t\tDown: z key\n");
+        printf( "\t\t\tUp: w key\n");
+        printf( "\t\t\tRight: s key\n");
+        printf( "\t\t\tLeft: a key\n");
+        printf( "\t\t\tQuit: Q key\n");
         printf("\t\t\tEnter E to start and Q to Stop!!\n");
         printf("\t\t\t-> ");
         if (_getch() == 'E') {
@@ -79,26 +100,32 @@ public:
     }
 
     bool validBoundary(int i, int j) {
-        if (i > 0 && i < height - 1 && j>0 && j < width - 1)
+        if (i > 0 && i < height - 1 && j>0 && j < width - 1 && matrix[i][j]!=boundary)
             return true;
         return false;
     }
     
     void gameLoop();
+    void createWindow();
 
 private:
     int width, height;
     char** matrix;
+    HANDLE console_color;
     int usrRow, usrCol;
+    char usr, boundary, empty;
+    int wonRow, wonCol;
 };
 
 /***
 * increase the speed of update to instant we like use of '\b' or '\c'
 */
 void Game::gameLoop(void) {
+    SetConsoleTextAttribute(console_color, 10);
+    Game::createWindow();
     while (1) {
         int flag = 0;
-        createWindow(height, width, matrix);
+        int used = 0;
         switch (_getch())
         {
             case 'Q':flag = 1;
@@ -106,65 +133,97 @@ void Game::gameLoop(void) {
 
             case 'w': //up 
                 if (validBoundary(usrRow - 1, usrCol)) {
-                    matrix[usrRow][usrCol] = '-';
-                    matrix[usrRow-1][usrCol] = '@';
+                    matrix[usrRow][usrCol] = empty;
+                    matrix[usrRow-1][usrCol] = usr;
                     usrRow -= 1;
+                }
+                else {
+                    used = 1;
                 }
             break;
 
             case 'z': //down index+1
                 if (validBoundary(usrRow + 1, usrCol)) {
-                    matrix[usrRow][usrCol] = '-';
-                    matrix[usrRow + 1][usrCol] = '@';
+                    matrix[usrRow][usrCol] = empty;
+                    matrix[usrRow + 1][usrCol] = usr;
                     usrRow += 1;
+                }
+                else {
+                    used = 1;
                 }
             break;
 
             case 's': // right
                 if (validBoundary(usrRow , usrCol+1)) {
-                    matrix[usrRow][usrCol] = '-';
-                    matrix[usrRow][usrCol + 1] = '@';
+                    matrix[usrRow][usrCol] = empty;
+                    matrix[usrRow][usrCol + 1] = usr;
                     usrCol += 1;
+                }
+                else {
+                    used = 1;
                 }
             break;
 
             case 'a': //left
-                if (validBoundary(usrRow , usrCol-1)) {
-                    matrix[usrRow][usrCol] = '-';
-                    matrix[usrRow][usrCol - 1] = '@';
+                if (validBoundary(usrRow , usrCol - 1)) {
+                    matrix[usrRow][usrCol] = empty;
+                    matrix[usrRow][usrCol - 1] = usr;
                     usrCol -= 1;
                 }
+                else {
+                    used = 1;
+                }
             break;
+            default:continue;
         }
         if (flag)
             break;
-        system("cls");
-        //createWindow(height, width, matrix);
-        //sleep(10000);
+        if (usrRow == wonRow && usrCol== wonCol) {
+            system("cls");
+            printf("\n\n\t\tYou WON!!");
+            return;
+        }
+        if (used == 0)
+        {
+            system("cls");
+
+            Game::createWindow();
+        }
     }
 }
 
 
-void createWindow(int h, int w, char** m)
+void Game::createWindow()
 {
-    int ii, cc;
-    for (int i = 0; i < h; i++) {
-        for (int j = 0; j < w; j++) {
-            std::cout << m[i][j];
-            if (m[i][j] == '@') {
+    int ii=0, cc=0;
+    for (int i = 0; i < height; i++) {
+        for (int j = 0; j < width; j++) {
+            if (matrix[i][j] == empty)
+            {
+                printf(" ");
+                continue;
+            }
+            printf("%c", matrix[i][j]);
+            if (matrix[i][j] == usr) {
                 ii = i;
                 cc = j;
             }
+            
         }
         printf("\n");
     }
-    std::cout << "\n DEBUG!\n" << "usr row: " << ii << "\nusr col: " << cc << std::endl;
+
+    printf("\nDebug\nusr row: %d\nusr col: %d", ii, cc);
 }
 
 int main()
 {
+    std::ios_base::sync_with_stdio(false);
+    std::cin.tie(NULL);
     system("cls");
     Game gg;
     gg.operatorJob();
+    printf("press key to exit...  ");
+    _getch();
     return EXIT_SUCCESS;
 }
