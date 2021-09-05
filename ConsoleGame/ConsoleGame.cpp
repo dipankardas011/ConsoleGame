@@ -1,17 +1,11 @@
 // ConsoleGame.cpp : This file contains the 'main' function. Program execution begins and ends there.
-#ifdef _WIN32
+
 #include <windows.h>
-
-void sleep(unsigned milliseconds)
-{
-    Sleep(milliseconds);
-}
-#endif
-
 #include <iostream>
 #include <time.h>
 #include <conio.h>
 #include <ios>
+#include <cwchar>
 
 class Game {
 
@@ -53,7 +47,7 @@ public:
     }
 
     void construct() {
-        //matrix[height / 2][width / 2] = boundary;
+        
         for (int row = 1; row < height / 2; row++)
             matrix[row][3] = boundary;
            
@@ -76,23 +70,24 @@ public:
     void operatorJob()
     {
         SetConsoleTextAttribute(console_color, 3);
-        printf( "\n\n\n");
-        printf( "\t\t\tControls:\n");
-        printf( "\t\t\tDown: z key\n");
-        printf( "\t\t\tUp: w key\n");
-        printf( "\t\t\tRight: s key\n");
-        printf( "\t\t\tLeft: a key\n");
-        printf( "\t\t\tQuit: Q key\n");
-        printf("\t\t\tEnter E to start and Q to Stop!!\n");
-        printf("\t\t\t-> ");
+        fprintf(stdout, "\n\n\n");
+        fprintf(stdout, "\t\t\t\tControls:\n");
+        fprintf(stdout, "\t\t\t\tDown: z key\n");
+        fprintf(stdout, "\t\t\t\tUp: w key\n");
+        fprintf(stdout, "\t\t\t\tRight: s key\n");
+        fprintf(stdout, "\t\t\t\tLeft: a key\n");
+        fprintf(stdout, "\t\t\t\tQuit: Q key\n");
+        fprintf(stdout, "\n\n");
+        fprintf(stdout, "\t\t\t\tEnter E to start the game\n");
+        fprintf(stdout, "\t\t\t\t-> ");
         if (_getch() == 'E') {
             system("cls");
             construct();
             gameLoop();
         }
         else {
-            printf("Success exited: [0x01]");
-            printf("Stoped");
+            fprintf(stderr, "INV Key bindings\n");
+            exit(EXIT_FAILURE);
         }
     }
     ~Game() {
@@ -107,6 +102,8 @@ public:
     
     void gameLoop();
     void createWindow();
+
+    void welcomePage();
 
 private:
     int width, height;
@@ -180,7 +177,7 @@ void Game::gameLoop(void) {
             break;
         if (usrRow == wonRow && usrCol== wonCol) {
             system("cls");
-            printf("\n\n\t\tYou WON!!");
+            fprintf(stdout, "\n\n\t\tYou WON!!");
             return;
         }
         if (used == 0)
@@ -200,30 +197,59 @@ void Game::createWindow()
         for (int j = 0; j < width; j++) {
             if (matrix[i][j] == empty)
             {
-                printf(" ");
+                fprintf(stdout, " ");
                 continue;
             }
-            printf("%c", matrix[i][j]);
+            fprintf(stdout, "%c", matrix[i][j]);
             if (matrix[i][j] == usr) {
                 ii = i;
                 cc = j;
             }
             
         }
-        printf("\n");
+        fprintf(stdout, "\n");
     }
 
     printf("\nDebug\nusr row: %d\nusr col: %d", ii, cc);
 }
+
+
+void Game::welcomePage() {
+    SetConsoleTextAttribute(console_color, 5);
+    fprintf(stdout,"\n\n\n");
+    fprintf(stdout, "\t\t\t\tWelcome To Matrix Game\n");
+    fprintf(stdout, "\t\t\t\tPress e to ENTER the Game and Q to QUIT\n\t\t\t\t-> ");
+    if (_getch() == 'e') {
+        system("cls");
+        
+    }
+    else {
+        fprintf(stdout, "Success exited: [0x01]");
+        fprintf(stdout, "Stoped");
+        exit(EXIT_SUCCESS);
+    }
+}
+
 
 int main()
 {
     std::ios_base::sync_with_stdio(false);
     std::cin.tie(NULL);
     system("cls");
+    CONSOLE_FONT_INFOEX cfi;
+    cfi.cbSize = sizeof(cfi);
+    cfi.nFont = 0;
+    cfi.dwFontSize.X = 0;                   // Width of each character in the font
+    cfi.dwFontSize.Y = 24;                  // Height
+    cfi.FontFamily = FF_DONTCARE;
+    cfi.FontWeight = FW_NORMAL;
+    std::wcscpy(cfi.FaceName, L"Consolas"); // Choose your font
+    SetCurrentConsoleFontEx(GetStdHandle(STD_OUTPUT_HANDLE), FALSE, &cfi);
     Game gg;
+    /*another method for the welcome controls, */
+    gg.welcomePage();
     gg.operatorJob();
-    printf("press key to exit...  ");
+    fprintf(stdout, "press key to exit...  ");
     _getch();
     return EXIT_SUCCESS;
 }
