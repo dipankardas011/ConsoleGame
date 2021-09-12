@@ -1,4 +1,11 @@
-// ConsoleGame.cpp : This file contains the 'main' function. Program execution begins and ends there.
+/***
+* Future goals
+* have to read from the file making sure of SHA 256 code of the file (look for the internet)
+* to add the '*' as bombs , '%' as the get way for moving from one place to other liek a ladder
+* to add the matrix like scene in background
+* @author Dipankar Das
+* @version 1.1
+*/
 
 #include <windows.h>
 #include <iostream>
@@ -217,11 +224,15 @@ void Game::createWindow()
 void Game::welcomePage() {
     SetConsoleTextAttribute(console_color, 5);
     fprintf(stdout,"\n\n\n");
-    fprintf(stdout, "\t\t\t\tWelcome To Matrix Game\n");
+    
+    printf("\t\t***      ***         ****       *********    *******       *******    ****    ****\n");
+    printf("\t\t****   *****        *** **         ***       ***   ***       ***        ***  ***\n");
+    printf("\t\t*** ***  ***       ***   **        ***       *** * ***       ***          ****\n");
+    printf("\t\t***      ***      *** ******       ***       ***   **        ***        ***  ***\n");
+    printf("\t\t***      ***     ***     ****      ***       ***   ****    *******    ****    ****\n");
     fprintf(stdout, "\t\t\t\tPress e to ENTER the Game and Q to QUIT\n\t\t\t\t-> ");
     if (_getch() == 'e') {
         system("cls");
-        
     }
     else {
         fprintf(stdout, "Success exited: [0x01]");
