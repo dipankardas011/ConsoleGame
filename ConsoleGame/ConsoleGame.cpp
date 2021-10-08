@@ -71,22 +71,36 @@ public:
 
         for (int row = height/2; row <height; row++)
             matrix[row][width - 10] = boundary;
-
+        /*
+        * 3,5
+          1,10
+          4,13
+        */
+        matrix[3][5] = matrix[1][10] = matrix[4][13] = '*';
     }
 
     void operatorJob()
     {
         SetConsoleTextAttribute(console_color, 3);
+        start:
         fprintf(stdout, "\n\n\n");
         fprintf(stdout, "\t\t\t\tControls:\n");
         fprintf(stdout, "\t\t\t\tDown: z key\n");
         fprintf(stdout, "\t\t\t\tUp: w key\n");
         fprintf(stdout, "\t\t\t\tRight: s key\n");
         fprintf(stdout, "\t\t\t\tLeft: a key\n");
+        fprintf(stdout, "\n\t\t\t\tRules: R key\n");
         fprintf(stdout, "\t\t\t\tQuit: Q key\n");
         fprintf(stdout, "\n\n");
         fprintf(stdout, "\t\t\t\tEnter E to start the game\n");
         fprintf(stdout, "\t\t\t\t-> ");
+
+        if (_getch() == 'R') {
+            system("cls");
+            rulesOfGame();
+            system("cls");
+            goto start;
+        }
         if (_getch() == 'E') {
             system("cls");
             construct();
@@ -106,9 +120,13 @@ public:
             return true;
         return false;
     }
+    bool isBomb(int i, int j) {
+        return matrix[i][j]=='*';
+    }
     
     void gameLoop();
     void createWindow();
+    void rulesOfGame();
 
     void welcomePage();
 
@@ -121,15 +139,26 @@ private:
     int wonRow, wonCol;
 };
 
+void Game::rulesOfGame() {
+    printf("\n\n");
+    printf("\t\tRULES\n");
+    printf("\t\t> # denotes the boundary\n");
+    printf("\t\t> * denotes the bombs\n");
+    printf("\t\t> @ denotes the you\n");
+    printf("\t\tPress any key to go back...");
+    _getch();
+}
+
 /***
 * increase the speed of update to instant we like use of '\b' or '\c'
 */
 void Game::gameLoop(void) {
-    SetConsoleTextAttribute(console_color, 10);
+    SetConsoleTextAttribute(console_color, 12);
     Game::createWindow();
     while (1) {
-        int flag = 0;
-        int used = 0;
+        bool flag = 0;
+        bool used = 0;
+        bool exitStatus = 0;
         switch (_getch())
         {
             case 'Q':flag = 1;
@@ -137,6 +166,10 @@ void Game::gameLoop(void) {
 
             case 'w': //up 
                 if (validBoundary(usrRow - 1, usrCol)) {
+                    if (isBomb(usrRow - 1, usrCol)) {
+                        exitStatus = true;
+                        break;
+                    }
                     matrix[usrRow][usrCol] = empty;
                     matrix[usrRow-1][usrCol] = usr;
                     usrRow -= 1;
@@ -148,6 +181,10 @@ void Game::gameLoop(void) {
 
             case 'z': //down index+1
                 if (validBoundary(usrRow + 1, usrCol)) {
+                    if (isBomb(usrRow +1, usrCol)) {
+                        exitStatus = true;
+                        break;
+                    }
                     matrix[usrRow][usrCol] = empty;
                     matrix[usrRow + 1][usrCol] = usr;
                     usrRow += 1;
@@ -159,6 +196,10 @@ void Game::gameLoop(void) {
 
             case 's': // right
                 if (validBoundary(usrRow , usrCol+1)) {
+                    if (isBomb(usrRow, usrCol+1)) {
+                        exitStatus = true;
+                        break;
+                    }
                     matrix[usrRow][usrCol] = empty;
                     matrix[usrRow][usrCol + 1] = usr;
                     usrCol += 1;
@@ -170,6 +211,10 @@ void Game::gameLoop(void) {
 
             case 'a': //left
                 if (validBoundary(usrRow , usrCol - 1)) {
+                    if (isBomb(usrRow, usrCol-1)) {
+                        exitStatus = true;
+                        break;
+                    }
                     matrix[usrRow][usrCol] = empty;
                     matrix[usrRow][usrCol - 1] = usr;
                     usrCol -= 1;
@@ -185,6 +230,11 @@ void Game::gameLoop(void) {
         if (usrRow == wonRow && usrCol== wonCol) {
             system("cls");
             fprintf(stdout, "\n\n\t\tYou WON!!");
+            return;
+        }
+        if (exitStatus) {
+            system("cls");
+            fprintf(stdout, "\n\n\t\tYou LOST!!");
             return;
         }
         if (used == 0)
@@ -251,7 +301,7 @@ int main()
     cfi.cbSize = sizeof(cfi);
     cfi.nFont = 0;
     cfi.dwFontSize.X = 0;                   // Width of each character in the font
-    cfi.dwFontSize.Y = 24;                  // Height
+    cfi.dwFontSize.Y = 20;                  // Height
     cfi.FontFamily = FF_DONTCARE;
     cfi.FontWeight = FW_NORMAL;
     std::wcscpy(cfi.FaceName, L"Consolas"); // Choose your font
