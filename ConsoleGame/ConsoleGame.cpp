@@ -94,14 +94,15 @@ public:
         fprintf(stdout, "\n\n");
         fprintf(stdout, "\t\t\t\tEnter E to start the game\n");
         fprintf(stdout, "\t\t\t\t-> ");
+        char ch = _getch();
 
-        if (_getch() == 'R') {
+        if (ch == 'R') {
             system("cls");
             rulesOfGame();
             system("cls");
             goto start;
         }
-        if (_getch() == 'E') {
+        if (ch == 'E') {
             system("cls");
             construct();
             gameLoop();
@@ -272,15 +273,19 @@ void Game::createWindow()
 
 
 void Game::welcomePage() {
-    SetConsoleTextAttribute(console_color, 5);
+    SetConsoleTextAttribute(console_color, 2);
     fprintf(stdout,"\n\n\n");
-    
-    printf("\t\t***      ***         ****       *********    *******       *******    ****    ****\n");
-    printf("\t\t****   *****        *** **         ***       ***   ***       ***        ***  ***\n");
-    printf("\t\t*** ***  ***       ***   **        ***       *** * ***       ***          ****\n");
-    printf("\t\t***      ***      *** ******       ***       ***   **        ***        ***  ***\n");
-    printf("\t\t***      ***     ***     ****      ***       ***   ****    *******    ****    ****\n");
-    fprintf(stdout, "\t\t\t\tPress e to ENTER the Game and Q to QUIT\n\t\t\t\t-> ");
+
+   
+    printf("\t\t   ____ ___    ____    __    _      __  _  __  \n");
+    printf("\t\t  / __ `__ \\  / __ `  / _`  / `_/  / /  \\`/ /  \n");
+    printf("\t\t / / / / / / / /_/ / / /_  / /    / /   /  \\  \n");
+    printf("\t\t/_/ /_/ /_/  \\__'_/  \\__/ /_/    /_/   /_/`_\\  \n");
+
+
+
+
+    fprintf(stdout, "\t\tPress e to ENTER the Game and Q to QUIT\n\t\t-> ");
     if (_getch() == 'e') {
         system("cls");
     }
